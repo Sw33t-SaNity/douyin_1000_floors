@@ -1,0 +1,55 @@
+# LEEME - Shader de Lava y Magma Estilizado
+
+Este documento explica la función de cada parámetro expuesto en el inspector del shader.
+
+## 🔷 Surface Inputs
+### ProjectionMode
+Define si el patrón se proyecta en espacio Mundial u Objeto.
+
+### OverallScale
+Controla la escala general del patrón de lava y corteza.
+
+### TurbulenceSpeed
+Ajusta la velocidad de animación de la turbulencia interna.
+
+### ScrollSpeed
+Determina la dirección y velocidad del desplazamiento UV (X, Y, Z, W).
+
+## 🔷 Lava
+### LavaColor
+Color HDR de la lava fundida.
+
+### Lava smoothness
+Define cuán reflectante o rugosa es la superficie de la lava.
+
+### LavaParallaxDepth
+Controla la profundidad del efecto de paralaje para simular volumen.
+
+### LavaLevel
+Determina el nivel mínimo visible de la lava.
+
+## 🔷 Crust
+### CrustLevel
+Establece el umbral donde comienza a aparecer la corteza sólida.
+
+### CrustFadeDistance
+Controla la transición suave de la corteza al contactar con otras geometrías usando la textura de profundidad.
+
+### CrustColor
+Color HDR de la corteza (lava solidificada).
+
+### Crust smoothness
+Controla el nivel de reflectividad de la corteza.
+
+## 🔷 Vertex wave
+### Lava wave offset
+Amplitud de la onda de desplazamiento de vértices.
+
+### Lava wave tiling
+Frecuencia de repetición del patrón de ondas.
+
+### Wave scroll speed
+Velocidad y dirección del desplazamiento de la onda (X, Y).
+
+---
+Para consultas, dudas o soporte: **turishader@gmail.com**

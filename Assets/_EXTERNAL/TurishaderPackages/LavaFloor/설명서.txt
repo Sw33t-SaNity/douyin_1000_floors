@@ -1,0 +1,55 @@
+# 스타일라이즈드 용암 및 마그마 셰이더 - 설명서
+
+이 문서는 셰이더 인스펙터에 노출된 각 매개변수의 기능을 설명합니다.
+
+## 🔷 Surface Inputs
+### ProjectionMode
+패턴이 월드 공간 또는 오브젝트 공간에 투영될지 설정합니다.
+
+### OverallScale
+용암과 지각 패턴의 전체 크기를 조절합니다.
+
+### TurbulenceSpeed
+내부 난류 애니메이션의 속도를 설정합니다.
+
+### ScrollSpeed
+UV 스크롤 방향과 속도 (X, Y, Z, W) 를 지정합니다.
+
+## 🔷 Lava
+### LavaColor
+용암의 발광 영역을 위한 HDR 색상입니다.
+
+### Lava smoothness
+용암 표면의 반사 또는 거칠기 정도를 설정합니다.
+
+### LavaParallaxDepth
+시차 깊이를 조절하여 부피감을 제공합니다.
+
+### LavaLevel
+용암이 보이기 시작하는 최저 위치를 정의합니다.
+
+## 🔷 Crust
+### CrustLevel
+고체 지각이 나타나기 시작하는 임계값을 설정합니다.
+
+### CrustFadeDistance
+깊이 텍스처를 기반으로 지각이 다른 지오메트리와 접촉할 때 부드럽게 페이드되도록 설정합니다.
+
+### CrustColor
+응고된 용암(지각)의 HDR 색상입니다.
+
+### Crust smoothness
+지각 표면의 반사도를 설정합니다.
+
+## 🔷 Vertex wave
+### Lava wave offset
+정점 이동 파형의 진폭을 조절합니다.
+
+### Lava wave tiling
+파형 패턴의 반복 빈도를 설정합니다.
+
+### Wave scroll speed
+파형의 이동 속도와 방향 (X, Y) 을 설정합니다.
+
+---
+문의사항이나 지원이 필요하시면 다음으로 연락주세요: **turishader@gmail.com**

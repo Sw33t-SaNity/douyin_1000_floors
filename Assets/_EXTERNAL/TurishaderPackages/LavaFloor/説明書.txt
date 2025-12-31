@@ -1,0 +1,55 @@
+# スタイライズ溶岩＆マグマシェーダー - 説明書
+
+このドキュメントでは、シェーダーインスペクターで調整できる各パラメータの説明を記載します。
+
+## 🔷 Surface Inputs
+### ProjectionMode
+ワールド空間またはオブジェクト空間での投影方法を指定します。
+
+### OverallScale
+溶岩と地殻パターンの全体的なスケールを調整します。
+
+### TurbulenceSpeed
+内部の乱流アニメーション速度を調整します。
+
+### ScrollSpeed
+UVスクロールの方向と速度 (X, Y, Z, W) を設定します。
+
+## 🔷 Lava
+### LavaColor
+溶岩の発光部分のHDRカラーです。
+
+### Lava smoothness
+溶岩表面の光沢度（滑らかさ）を制御します。
+
+### LavaParallaxDepth
+視差効果の深さを調整し、奥行き感を出します。
+
+### LavaLevel
+溶岩が見える最小レベルを定義します。
+
+## 🔷 Crust
+### CrustLevel
+固体の地殻が現れ始める閾値を設定します。
+
+### CrustFadeDistance
+深度テクスチャに基づいて他のジオメトリとの接触部分で滑らかに地殻をフェードさせます。
+
+### CrustColor
+固化した溶岩（地殻）のHDRカラー。
+
+### Crust smoothness
+地殻の表面反射を調整します。
+
+## 🔷 Vertex wave
+### Lava wave offset
+頂点の変位波の振幅を調整します。
+
+### Lava wave tiling
+波のパターンの繰り返し頻度を調整します。
+
+### Wave scroll speed
+波の動きの速度と方向 (X, Y) を調整します。
+
+---
+ご質問やサポートは以下まで：**turishader@gmail.com**

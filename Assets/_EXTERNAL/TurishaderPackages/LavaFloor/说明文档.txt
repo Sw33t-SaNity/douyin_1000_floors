@@ -1,0 +1,55 @@
+# 自定义熔岩和岩浆着色器 - 说明文档
+
+本文档说明了着色器中每个参数的用途。
+
+## 🔷 Surface Inputs
+### ProjectionMode
+设置图案是在世界空间还是对象空间中投影。
+
+### OverallScale
+控制熔岩和岩石图案的整体缩放。
+
+### TurbulenceSpeed
+调整熔岩内部扰动的动画速度。
+
+### ScrollSpeed
+设置UV滚动的方向和速度（X, Y, Z, W）。
+
+## 🔷 Lava
+### LavaColor
+熔岩发光部分的HDR颜色。
+
+### Lava smoothness
+决定熔岩表面的光滑度或粗糙感。
+
+### LavaParallaxDepth
+控制视差深度以增强体积感。
+
+### LavaLevel
+设置熔岩的最低可见位置。
+
+## 🔷 Crust
+### CrustLevel
+控制岩浆与表面之间的过渡点。
+
+### CrustFadeDistance
+使用深度纹理控制熔岩壳与其他物体接触处的渐变效果。
+
+### CrustColor
+固态熔岩的HDR颜色。
+
+### Crust smoothness
+调节岩壳表面的光滑程度。
+
+## 🔷 Vertex wave
+### Lava wave offset
+控制顶点偏移波的振幅。
+
+### Lava wave tiling
+控制波纹图案的重复频率。
+
+### Wave scroll speed
+控制波纹的移动速度和方向（X, Y）。
+
+---
+如有疑问或需要支持，请联系：**turishader@gmail.com**
