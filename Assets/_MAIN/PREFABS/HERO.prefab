@@ -266,14 +266,14 @@ GameObject:
   m_Component:
   - component: {fileID: 7185325579252734075}
   - component: {fileID: 3698578059777369624}
-  - component: {fileID: 1965498869869717789}
   - component: {fileID: 6166063228232128730}
   - component: {fileID: 1180757931905678021}
-  - component: {fileID: 2405145162978251057}
+  - component: {fileID: 1965498869869717789}
   - component: {fileID: 7200604861284627930}
+  - component: {fileID: 2066933774210562839}
   m_Layer: 0
   m_Name: HERO
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -316,25 +316,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1965498869869717789
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7018019522521940847}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 262a7b34dd9723b4cbf1677e52886dd1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damageFeedback: {fileID: 0}
-  JumpFeedback: {fileID: 0}
-  landingFeedback: {fileID: 0}
-  minFallSpeed: 0
-  maxFallSpeed: 20
-  minSquashForce: 0.5
-  maxSquashForce: 3
 --- !u!54 &6166063228232128730
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -385,7 +366,7 @@ CapsuleCollider:
   m_Height: 0.6748437
   m_Direction: 1
   m_Center: {x: 0, y: 0.33524963, z: -0.004759684}
---- !u!114 &2405145162978251057
+--- !u!114 &1965498869869717789
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -394,10 +375,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7018019522521940847}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3182c45ca04701544aec91b4caa4cf0b, type: 3}
+  m_Script: {fileID: 11500000, guid: 262a7b34dd9723b4cbf1677e52886dd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxFallSpeed: 30
+  minFallSpeed: 0
 --- !u!114 &7200604861284627930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,6 +392,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: dbd80ada62edeb146b790b371d389f2e, type: 2}
+--- !u!114 &2066933774210562839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7018019522521940847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98e8887a85179524fade4dcde9979805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpFeedback: {fileID: 0}
+  landingFeedback: {fileID: 0}
+  damageFeedback: {fileID: 0}
+  maxFallSpeed: 20
+  minSquashForce: 0.5
+  maxSquashForce: 3
 --- !u!1001 &3127200080234045021
 PrefabInstance:
   m_ObjectHideFlags: 0
