@@ -5,14 +5,18 @@ using YF_3DGameBase;
 namespace ThousandFloors
 {
     /// <summary>
-    /// Handles forced, kinematic movement of the hero between grid levels (vertical floors).
+    /// Singleton manager that handles forced, kinematic movement of the hero between grid levels (vertical floors).
     /// Used for "Fast Travel" or level skipping mechanics.
     /// </summary>
-    [RequireComponent(typeof(Rigidbody))]
-    [RequireComponent(typeof(Collider))]
-    public class HeroGridMotion : MonoBehaviour
+    public class GridMotionManager : MonoBehaviour
     {
+        public static GridMotionManager Instance { get; private set; }
+
         #region Inspector Settings
+        [Header("References")]
+        [Tooltip("The player GameObject that will be moved. Must have Rigidbody, Collider, Animator, and HeroController components.")]
+        public GameObject player;
+
         [Header("Movement Settings")]
         [Tooltip("Vertical speed in units per second.")]
         public float moveSpeed = 20f;
@@ -37,22 +41,71 @@ namespace ThousandFloors
         private Collider _col;
         private Animator _anim;
         private CylinderMovementModifier _cylinderModifier;
+        private Transform _playerTransform;
 
         /// <summary>
         /// Returns true if the hero is currently executing a forced grid move.
         /// </summary>
         public bool IsMovingForced { get; private set; }
+
+        /// <summary>
+        /// If true, movement will pause (used during cutscenes).
+        /// </summary>
+        public bool IsPaused { get; set; }
         #endregion
 
         #region Unity Lifecycle
         void Awake()
         {
-            _rb = GetComponent<Rigidbody>();
-            _col = GetComponent<Collider>();
-            _anim = GetComponent<Animator>();
-            _cylinderModifier = GetComponent<CylinderMovementModifier>();
-            
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+
             IsMovingForced = false;
+        }
+
+        void Start()
+        {
+            // Initialize player references
+            if (player == null)
+            {
+                // Try to find player by tag
+                GameObject foundPlayer = GameObject.FindGameObjectWithTag("Player");
+                if (foundPlayer != null)
+                {
+                    player = foundPlayer;
+                }
+                else
+                {
+                    Debug.LogWarning("[GridMotionManager] Player reference not set and no GameObject with 'Player' tag found!");
+                }
+            }
+
+            if (player != null)
+            {
+                InitializePlayerReferences();
+            }
+        }
+
+        private void InitializePlayerReferences()
+        {
+            _playerTransform = player.transform;
+            _rb = player.GetComponent<Rigidbody>();
+            _col = player.GetComponent<Collider>();
+            _anim = player.GetComponent<Animator>();
+            _cylinderModifier = player.GetComponent<CylinderMovementModifier>();
+
+            if (_rb == null)
+            {
+                Debug.LogError("[GridMotionManager] Player GameObject must have a Rigidbody component!");
+            }
+            if (_col == null)
+            {
+                Debug.LogError("[GridMotionManager] Player GameObject must have a Collider component!");
+            }
         }
         #endregion
 
@@ -71,13 +124,20 @@ namespace ThousandFloors
         #region Main Coroutine
         private IEnumerator MoveRoutine(int levelDelta)
         {
+            // Validate player reference
+            if (player == null || _playerTransform == null)
+            {
+                Debug.LogError("[GridMotionManager] Cannot move - player reference is null!");
+                yield break;
+            }
+
             // --- 1. SETUP ---
             IsMovingForced = true;
-            int currentLevel = FloorsManager.Instance.GetLevelIndex(transform.position.y);
+            int currentLevel = FloorsManager.Instance.GetLevelIndex(_playerTransform.position.y);
             int targetLevel = currentLevel + levelDelta;
             float targetY = FloorsManager.Instance.GetPlatformY(targetLevel);
             
-            Vector3 startPos = transform.position;
+            Vector3 startPos = _playerTransform.position;
             Vector3 targetPos = new Vector3(startPos.x, targetY, startPos.z);
 
             // --- 2. INITIALIZE STATE ---
@@ -97,11 +157,17 @@ namespace ThousandFloors
 
             while (elapsed < duration)
             {
+                // Pause support: wait if paused (e.g., during cutscene)
+                while (IsPaused)
+                {
+                    yield return null;
+                }
+
                 float t = elapsed / duration;
                 float curveT = motionCurve.Evaluate(t);
 
                 // Lerp Position
-                transform.position = Vector3.Lerp(startPos, targetPos, curveT);
+                _playerTransform.position = Vector3.Lerp(startPos, targetPos, curveT);
 
                 // Slerp Rotation (if using cylindrical coordinates)
                 if (rotateCylinder)
@@ -110,7 +176,7 @@ namespace ThousandFloors
                 }
 
                 // Event Check: Have we passed a floor during this frame?
-                lastProcessedLevel = CheckLevelCrossings(lastProcessedLevel, transform.position.y, levelDelta, targetLevel);
+                lastProcessedLevel = CheckLevelCrossings(lastProcessedLevel, _playerTransform.position.y, levelDelta, targetLevel);
 
                 elapsed += Time.deltaTime;
                 yield return null;
@@ -127,7 +193,7 @@ namespace ThousandFloors
             
             // C. Final Position Snap
             // Apply Offset to prevent embedding in the floor and physics depenetration spikes
-            transform.position = new Vector3(targetPos.x, targetPos.y + LANDING_OFFSET_Y, targetPos.z);
+            _playerTransform.position = new Vector3(targetPos.x, targetPos.y + LANDING_OFFSET_Y, targetPos.z);
             
             if (rotateCylinder)
             {
@@ -141,7 +207,7 @@ namespace ThousandFloors
             // E. Manually tell HeroController "We are on the ground, don't check physics this frame"
             if (FloorsManager.Instance.GetPlatform(targetLevel, out GameObject targetPlatform))
             {
-                 HeroController hero = GetComponent<HeroController>();
+                 HeroController hero = player.GetComponent<HeroController>();
                  if (hero != null)
                  {
                      hero.ForceSnapToGround(targetPlatform.transform, true);
@@ -149,7 +215,7 @@ namespace ThousandFloors
             }
 
             // Final event check to ensure no levels were skipped in the last frame
-            CheckLevelCrossings(lastProcessedLevel, transform.position.y, levelDelta, targetLevel);
+            CheckLevelCrossings(lastProcessedLevel, _playerTransform.position.y, levelDelta, targetLevel);
 
             ThousandFloorsEvents.HeroMoveCompleted(currentLevel, targetLevel);
             IsMovingForced = false;
@@ -252,7 +318,7 @@ namespace ThousandFloors
                     // Logic: Pre-load the platform visually before we arrive
                     ThousandFloorsEvents.RequestPlatformState(lastLevel, true);
                     
-                    Vector3 effectPos = new Vector3(transform.position.x, FloorsManager.Instance.GetPlatformY(lastLevel) - halfDist, transform.position.z);
+                    Vector3 effectPos = new Vector3(_playerTransform.position.x, FloorsManager.Instance.GetPlatformY(lastLevel) - halfDist, _playerTransform.position.z);
                     ThousandFloorsEvents.ScoreChanged(1, effectPos, true);
                 }
             }
@@ -260,7 +326,7 @@ namespace ThousandFloors
             {
                 while (lastLevel > currentLevelIdx && lastLevel > targetLevel)
                 {
-                    Vector3 effectPos = new Vector3(transform.position.x, FloorsManager.Instance.GetPlatformY(lastLevel) - halfDist, transform.position.z);
+                    Vector3 effectPos = new Vector3(_playerTransform.position.x, FloorsManager.Instance.GetPlatformY(lastLevel) - halfDist, _playerTransform.position.z);
                     ThousandFloorsEvents.ScoreChanged(-1, effectPos, true);
                     ThousandFloorsEvents.PlatformBroken(lastLevel);
                     lastLevel--;

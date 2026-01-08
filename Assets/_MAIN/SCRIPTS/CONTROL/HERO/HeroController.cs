@@ -13,7 +13,7 @@ namespace YF_3DGameBase
     [RequireComponent(typeof(CharacterStats))]
     public class HeroController : MonoBehaviour
     {
-        public enum HeroState { Normal, Stunned, InputLocked }
+        public enum HeroState { Normal, Stunned, InputLocked, CutscenePlaying }
 
         #region Events
         public event System.Action OnJumped;
@@ -82,6 +82,8 @@ namespace YF_3DGameBase
             
             if (_stats != null) _stats.OnTakenDamage += HandleKnockback;
             GlobalEvents.OnToggleInputLock += HandleInputLock;
+            GlobalEvents.OnCutsceneStarted += HandleCutsceneStarted;
+            GlobalEvents.OnCutsceneFinished += HandleCutsceneFinished;
         }
 
         private void OnDisable()
@@ -91,6 +93,8 @@ namespace YF_3DGameBase
             
             if (_stats != null) _stats.OnTakenDamage -= HandleKnockback;
             GlobalEvents.OnToggleInputLock -= HandleInputLock;
+            GlobalEvents.OnCutsceneStarted -= HandleCutsceneStarted;
+            GlobalEvents.OnCutsceneFinished -= HandleCutsceneFinished;
         }
 
         void Start()
@@ -145,11 +149,30 @@ namespace YF_3DGameBase
         #region State Logic
         private void HandleInputLock(bool isLocked)
         {
+            // Don't override cutscene state
+            if (_currentState == HeroState.CutscenePlaying) return;
+
             if (isLocked) {
                 _currentState = HeroState.InputLocked;
                 _movementInput = Vector2.zero;
             }
             else if (_currentState == HeroState.InputLocked) _currentState = HeroState.Normal;
+        }
+
+        private void HandleCutsceneStarted(string cutsceneId)
+        {
+            _currentState = HeroState.CutscenePlaying;
+            _movementInput = Vector2.zero;
+        }
+
+        private void HandleCutsceneFinished(string cutsceneId)
+        {
+            // Only restore to Normal if we're still in CutscenePlaying state
+            // (don't override if we got stunned or something else happened)
+            if (_currentState == HeroState.CutscenePlaying)
+            {
+                _currentState = HeroState.Normal;
+            }
         }
 
         private void HandleTimers()

@@ -18,9 +18,8 @@ namespace ThousandFloors
                 return;
 
             // 2. Check if the player is currently in a forced grid move
-            // We use the root component to check state
-            var gridMotion = other.GetComponentInParent<HeroGridMotion>();
-            if (gridMotion != null && gridMotion.IsMovingForced) 
+            // HeroGridMotion is now a singleton manager
+            if (HeroGridMotion.Instance != null && HeroGridMotion.Instance.IsMovingForced) 
                 return;
 
             // 3. Natural Progress: Player fell through the gap or jumped off

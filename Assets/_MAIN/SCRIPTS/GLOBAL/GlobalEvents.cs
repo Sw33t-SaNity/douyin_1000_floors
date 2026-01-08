@@ -25,5 +25,29 @@ namespace YF_3DGameBase
         {
             OnScoreChanged?.Invoke(currentScore, delta);
         }
+
+        #region Cutscene Events
+        /// <summary>
+        /// Event fired when a cutscene starts playing.
+        /// Passes the cutscene ID/name for identification.
+        /// </summary>
+        public static event Action<string> OnCutsceneStarted;
+
+        /// <summary>
+        /// Event fired when a cutscene finishes playing.
+        /// Passes the cutscene ID/name for identification.
+        /// </summary>
+        public static event Action<string> OnCutsceneFinished;
+
+        public static void CutsceneStarted(string cutsceneId)
+        {
+            OnCutsceneStarted?.Invoke(cutsceneId);
+        }
+
+        public static void CutsceneFinished(string cutsceneId)
+        {
+            OnCutsceneFinished?.Invoke(cutsceneId);
+        }
+        #endregion
     }
 }

@@ -73,3 +73,29 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# 3D Models
+*.fbx
+*.fbx.meta
+
+# Textures
+*.png
+*.png.meta
+*.jpg
+*.jpg.meta
+*.jpeg
+*.jpeg.meta
+*.tga
+*.tga.meta
+*.psd
+*.psd.meta
+*.tiff
+*.tiff.meta
+*.tif
+*.tif.meta
+*.bmp
+*.bmp.meta
+*.exr
+*.exr.meta
+*.hdr
+*.hdr.meta

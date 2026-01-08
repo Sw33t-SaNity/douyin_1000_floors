@@ -19,16 +19,18 @@ namespace DouyinGame.Core
 
         public static void Enqueue(Action action)
         {
+            if (action == null)
+            {
+                Debug.LogWarning("[MainThreadDispatcher] Attempted to enqueue null action");
+                return;
+            }
+
             if (_instance == null)
             {
-                _instance = FindObjectOfType<MainThreadDispatcher>();
-                if (_instance == null)
-                {
-                    // Silent fail is better than crash in some threaded contexts, 
-                    // but logging error is safer for debugging.
-                    Debug.LogError("[MainThreadDispatcher] Instance not found!");
-                    return;
-                }
+                // We cannot call FindObjectOfType from a background thread.
+                // The instance MUST be initialized on the main thread first.
+                Debug.LogWarning("[MainThreadDispatcher] Instance not initialized. Action will be dropped.");
+                return;
             }
 
             // Thread-safe enqueue
