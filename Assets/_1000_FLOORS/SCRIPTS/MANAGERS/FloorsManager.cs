@@ -148,7 +148,7 @@ namespace ThousandFloors
                 if (kvp.Value.TryGetComponent<PlatformVisualHandler>(out var vh))
                 {
                     // If we are in a forced move, don't touch platforms in the jump path.
-                    // They are managed by events in HeroGridMotion.
+                    // They are managed by events in GridMotionManager.
                     if (_forcedTargetIndex > centerIndex && kvp.Key > centerIndex && kvp.Key <= _forcedTargetIndex)
                     {
                         continue; 

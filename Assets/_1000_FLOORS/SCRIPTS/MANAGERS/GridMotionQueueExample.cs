@@ -9,15 +9,15 @@ namespace YF_3DGameBase.Examples
     /// 
     /// SETUP:
     /// 1. Add GridMotionQueue component to a GameObject in your scene
-    /// 2. Assign the HeroGridMotion component reference
-    /// 3. Create SO_GiftEffectData assets for each gift type:
-    ///    - Right-click > Create > Douyin Live > Gift Effect Data
+    /// 2. Add GridMotionManager component to a GameObject and assign player reference
+    /// 3. Create GiftActionData assets for each gift type:
+    ///    - Right-click > Create > Douyin Live > Gift Action Data
     ///    - Configure levels to move, persistent effects, one-time effects
-    ///    - Optionally assign cutscene data for big gifts
-    /// 4. Create GiftGridMotionAction assets:
-    ///    - Right-click > Create > Douyin Live > Interaction Actions > Gift > Grid Motion with Effects
-    ///    - Assign your SO_GiftEffectData
-    /// 5. Add GiftGridMotionAction to LiveInteractionConfig's gift mappings
+    ///    - Optionally assign cutscene data
+    /// 4. Create GiftMotionAction assets:
+    ///    - Right-click > Create > Douyin Live > Interaction Actions > Gift > Motion with Effects
+    ///    - Assign your GiftActionData
+    /// 5. Add GiftMotionAction to LiveInteractionConfig's gift mappings
     /// 
     /// HOW IT WORKS:
     /// - Small gifts: No cutscene, just effects + grid motion
@@ -29,18 +29,18 @@ namespace YF_3DGameBase.Examples
     public class GridMotionQueueExample : MonoBehaviour
     {
         [Header("Test Configuration")]
-        public SO_GiftEffectData testEffectData;
+        public Douyin.YF.Live.GiftActionData testActionData;
 
         private void Update()
         {
             // Example: Press Space to test grid motion
-            if (Input.GetKeyDown(KeyCode.Space) && testEffectData != null && GridMotionQueue.Instance != null)
+            if (Input.GetKeyDown(KeyCode.Space) && testActionData != null && GridMotionQueue.Instance != null)
             {
                 GridMotionQueue.Instance.QueueMovement(
-                    testEffectData.levelsToMove,
+                    testActionData.levelsToMove,
                     "test_gift",
-                    testEffectData.persistentEffects,
-                    testEffectData.oneTimeEffects
+                    testActionData.persistentEffects,
+                    testActionData.oneTimeEffects
                 );
             }
         }

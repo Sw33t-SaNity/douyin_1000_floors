@@ -18,8 +18,8 @@ namespace ThousandFloors
                 return;
 
             // 2. Check if the player is currently in a forced grid move
-            // HeroGridMotion is now a singleton manager
-            if (HeroGridMotion.Instance != null && HeroGridMotion.Instance.IsMovingForced) 
+            // GridMotionManager is now a singleton manager
+            if (GridMotionManager.Instance != null && GridMotionManager.Instance.IsMovingForced) 
                 return;
 
             // 3. Natural Progress: Player fell through the gap or jumped off

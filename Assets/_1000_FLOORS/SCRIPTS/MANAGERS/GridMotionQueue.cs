@@ -18,9 +18,9 @@ namespace ThousandFloors
         public static GridMotionQueue Instance { get; private set; }
 
         [Header("References")]
-        [Tooltip("HeroGridMotion is now a singleton manager. No reference needed.")]
-        [System.Obsolete("HeroGridMotion is now a singleton - use HeroGridMotion.Instance instead")]
-        [SerializeField] private HeroGridMotion _heroGridMotion;
+        [Tooltip("GridMotionManager is now a singleton manager. No reference needed.")]
+        [System.Obsolete("GridMotionManager is now a singleton - use GridMotionManager.Instance instead")]
+        [SerializeField] private GridMotionManager _gridMotionManager;
 
         [Header("Settings")]
         [Tooltip("If true, movements are paused automatically when cutscenes play.")]
@@ -115,26 +115,40 @@ namespace ThousandFloors
             // Update net movement
             _pendingLevelDelta += levelDelta;
 
-            // Play one-time effects immediately
+            // Get player position for effect spawning
+            Vector3 spawnPosition = Vector3.zero;
+            if (GridMotionManager.Instance != null && GridMotionManager.Instance.player != null)
+            {
+                spawnPosition = GridMotionManager.Instance.player.transform.position;
+            }
+
+            // Play one-time effects immediately (instantiate from prefabs)
             if (oneTimeEffects != null)
             {
-                foreach (var effect in oneTimeEffects)
+                foreach (var effectPrefab in oneTimeEffects)
                 {
-                    if (effect != null)
+                    if (effectPrefab != null)
                     {
-                        PlayOneTimeEffect(effect);
+                        GameObject instance = Instantiate(effectPrefab, spawnPosition, Quaternion.identity);
+                        PlayOneTimeEffect(instance);
                     }
                 }
             }
 
-            // Start persistent effects and track them
+            // Start persistent effects and track them (instantiate from prefabs)
             if (persistentEffects != null)
             {
-                foreach (var effect in persistentEffects)
+                foreach (var effectPrefab in persistentEffects)
                 {
-                    if (effect != null)
+                    if (effectPrefab != null)
                     {
-                        StartPersistentEffect(effect, giftId);
+                        GameObject instance = Instantiate(effectPrefab, spawnPosition, Quaternion.identity);
+                        // For persistent effects, parent to player so they follow during movement
+                        if (GridMotionManager.Instance != null && GridMotionManager.Instance.player != null)
+                        {
+                            instance.transform.SetParent(GridMotionManager.Instance.player.transform, true);
+                        }
+                        StartPersistentEffect(instance, giftId);
                     }
                 }
             }
@@ -186,22 +200,22 @@ namespace ThousandFloors
         /// </summary>
         private IEnumerator ExecuteMovement(int levelDelta)
         {
-            if (HeroGridMotion.Instance == null || levelDelta == 0)
+            if (GridMotionManager.Instance == null || levelDelta == 0)
             {
                 yield break;
             }
 
-            // Set pause state on HeroGridMotion before starting
-            HeroGridMotion.Instance.IsPaused = _isPaused;
+            // Set pause state on GridMotionManager before starting
+            GridMotionManager.Instance.IsPaused = _isPaused;
             
-            // Start the movement using HeroGridMotion's existing system
-            HeroGridMotion.Instance.MoveLevels(levelDelta);
+            // Start the movement using GridMotionManager's existing system
+            GridMotionManager.Instance.MoveLevels(levelDelta);
             
             // Monitor movement and update pause state continuously
-            while (HeroGridMotion.Instance.IsMovingForced)
+            while (GridMotionManager.Instance.IsMovingForced)
             {
-                // Update pause state on HeroGridMotion (in case it changed)
-                HeroGridMotion.Instance.IsPaused = _isPaused;
+                // Update pause state on GridMotionManager (in case it changed)
+                GridMotionManager.Instance.IsPaused = _isPaused;
                 yield return null;
             }
         }
@@ -264,24 +278,57 @@ namespace ThousandFloors
             }
         }
 
+        /// <summary>
+        /// Waits for a ParticleSystem to finish playing, then cleans it up.
+        /// Checks both isPlaying and particleCount to ensure all particles have finished.
+        /// </summary>
         private IEnumerator CleanupOneTimeEffectWhenDone(GameObject effect, ParticleSystem ps)
         {
+            if (ps == null)
+            {
+                CleanupEffect(effect);
+                yield break;
+            }
+
+            // Wait for the particle system to stop emitting
             while (ps != null && ps.isPlaying)
             {
                 yield return null;
             }
+
+            // Wait for all particles to disappear (particleCount > 0)
+            while (ps != null && ps.particleCount > 0)
+            {
+                yield return null;
+            }
+
             CleanupEffect(effect);
         }
 
+        /// <summary>
+        /// Waits for an AudioSource to finish playing, then cleans it up.
+        /// </summary>
         private IEnumerator CleanupOneTimeEffectWhenDone(GameObject effect, AudioSource audio)
         {
+            if (audio == null)
+            {
+                CleanupEffect(effect);
+                yield break;
+            }
+
+            // Wait for audio to finish playing
             while (audio != null && audio.isPlaying)
             {
                 yield return null;
             }
+
             CleanupEffect(effect);
         }
 
+        /// <summary>
+        /// Fallback cleanup for effects without ParticleSystem or AudioSource.
+        /// Uses a timer-based cleanup after a default duration.
+        /// </summary>
         private IEnumerator CleanupOneTimeEffectAfterDelay(GameObject effect, float delay)
         {
             yield return new WaitForSeconds(delay);
@@ -292,8 +339,6 @@ namespace ThousandFloors
         {
             if (effect == null) return;
 
-            effect.SetActive(false);
-            
             // Stop particle systems
             var particleSystem = effect.GetComponent<ParticleSystem>();
             if (particleSystem != null)
@@ -307,6 +352,9 @@ namespace ThousandFloors
             {
                 audioSource.Stop();
             }
+
+            // Destroy the instantiated GameObject (since it was created from a prefab)
+            Destroy(effect);
         }
 
         private void CleanupAllPersistentEffects()
