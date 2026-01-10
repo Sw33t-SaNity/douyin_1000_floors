@@ -19,7 +19,7 @@ namespace YF_3DGameBase
         public PlayableAsset timelineAsset;
 
         [Header("Settings")]
-        [Tooltip("If true, the cutscene will pause game time. If false, it plays in unscaled time.")]
+        [Tooltip("If true, the cutscene will pause gameplay (via timeScale or physics, based on CutsceneManager settings).")]
         public bool pauseGameTime = true;
 
         [Tooltip("If true, the cutscene will automatically restore input when finished.")]

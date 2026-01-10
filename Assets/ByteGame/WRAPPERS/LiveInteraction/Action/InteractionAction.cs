@@ -24,17 +24,4 @@ namespace Douyin.YF.Live
     {
         public abstract void Execute(ILikeMessage data);
     }
-
-    /// <summary>
-    /// Base class for actions that execute when a cutscene finishes.
-    /// These actions can perform various effects like particle systems, grid motion, audio, etc.
-    /// </summary>
-    public abstract class CutsceneAction : InteractionAction
-    {
-        /// <summary>
-        /// Executes the action when a cutscene finishes.
-        /// </summary>
-        /// <param name="cutsceneId">The ID of the cutscene that just finished.</param>
-        public abstract void Execute(string cutsceneId);
-    }
 }

@@ -28,9 +28,17 @@ namespace YF_3DGameBase
         [Header("Combo Settings")]
         [Tooltip("Time window in seconds to group score changes into a combo")]
         [SerializeField] private float _comboWindow = 0.8f;
+
+        [Header("Cutscene Behaviour")]
+        [Tooltip("UI elements to hide during cutscenes")]
+        [SerializeField] private GameObject[] _hideOnCutscene;
+        [Tooltip("If true, feedbacks will not play during cutscenes")]
+        [SerializeField] private bool _pauseFeedbacksDuringCutscene = true;
         
         private float _lastScoreTime;
         private int _accumulatedDelta;
+        private bool _isInCutscene = false;
+        private bool[] _wasActiveBeforeCutscene;
 
         private void Awake()
         {
@@ -46,12 +54,16 @@ namespace YF_3DGameBase
         {
             ThousandFloorsEvents.OnScoreChanged += HandleScoreChanged;
             GlobalEvents.OnScoreChanged += UpdateScoreText;
+            GlobalEvents.OnCutsceneStarted += HandleCutsceneStarted;
+            GlobalEvents.OnCutsceneFinished += HandleCutsceneFinished;
         }
 
         private void OnDisable()
         {
             ThousandFloorsEvents.OnScoreChanged -= HandleScoreChanged;
             GlobalEvents.OnScoreChanged -= UpdateScoreText;
+            GlobalEvents.OnCutsceneStarted -= HandleCutsceneStarted;
+            GlobalEvents.OnCutsceneFinished -= HandleCutsceneFinished;
         }
 
         private void Start()
@@ -70,6 +82,9 @@ namespace YF_3DGameBase
         private void HandleScoreChanged(int delta, Vector3 worldPos, bool isProgress)
         {
             if (_scoreText == null || ScoreManager.Instance == null) return;
+
+            // Skip feedbacks during cutscenes if configured
+            if (_isInCutscene && _pauseFeedbacksDuringCutscene) return;
 
             // delta < 0 means progress (remaining floors decreasing)
             if (isProgress && _scoreProgressFeedback != null)
@@ -106,5 +121,55 @@ namespace YF_3DGameBase
                 _addScoreFeedback.PlayFeedbacks();
             }
         }
+
+        #region Cutscene Handling
+        private void HandleCutsceneStarted(string cutsceneId)
+        {
+            _isInCutscene = true;
+            
+            // Hide UI elements
+            if (_hideOnCutscene != null && _hideOnCutscene.Length > 0)
+            {
+                _wasActiveBeforeCutscene = new bool[_hideOnCutscene.Length];
+                for (int i = 0; i < _hideOnCutscene.Length; i++)
+                {
+                    if (_hideOnCutscene[i] != null)
+                    {
+                        _wasActiveBeforeCutscene[i] = _hideOnCutscene[i].activeSelf;
+                        _hideOnCutscene[i].SetActive(false);
+                    }
+                }
+            }
+            
+            Debug.Log($"[UIManager] Cutscene '{cutsceneId}' started - UI hidden, feedbacks paused");
+        }
+
+        private void HandleCutsceneFinished(string cutsceneId)
+        {
+            _isInCutscene = false;
+            
+            // Restore UI elements
+            if (_hideOnCutscene != null && _wasActiveBeforeCutscene != null)
+            {
+                for (int i = 0; i < _hideOnCutscene.Length; i++)
+                {
+                    if (_hideOnCutscene[i] != null && i < _wasActiveBeforeCutscene.Length && _wasActiveBeforeCutscene[i])
+                    {
+                        _hideOnCutscene[i].SetActive(true);
+                    }
+                }
+            }
+            
+            // Reset combo state after cutscene
+            _accumulatedDelta = 0;
+            
+            Debug.Log($"[UIManager] Cutscene '{cutsceneId}' finished - UI restored, feedbacks resumed");
+        }
+        
+        /// <summary>
+        /// Returns true if a cutscene is currently playing.
+        /// </summary>
+        public bool IsInCutscene => _isInCutscene;
+        #endregion
     }
 }

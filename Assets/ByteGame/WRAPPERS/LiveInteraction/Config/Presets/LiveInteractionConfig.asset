@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baf99822a471e754187f4afcc2379007, type: 3}
+  m_Name: LiveInteractionConfig
+  m_EditorClassIdentifier: 
+  giftActions:
+  - giftName: "\u4ED9\u5973\u68D2"
+    giftId: n1/Dg1905sj1FyoBlQBvmbaDZFBNaKuKZH6zxHkv8Lg5x2cRfrKUTb8gzMs=
+    action: {fileID: 0}
+  - giftName: "\u80FD\u529B\u836F\u4E38"
+    giftId: 28rYzVFNyXEXFC8HI+f/WG+I7a6lfl3OyZZjUS+CVuwCgYZrPrUdytGHu0c=
+    action: {fileID: 0}
+  - giftName: "\u751C\u751C\u5708"
+    giftId: PJ0FFeaDzXUreuUBZH6Hs+b56Jh0tQjrq0bIrrlZmv13GSAL9Q1hf59fjGk=
+    action: {fileID: 0}
+  - giftName: "\u80FD\u91CF\u7535\u6C60"
+    giftId: IkkadLfz7O/a5UR45p/OOCCG6ewAWVbsuzR/Z+v1v76CBU+mTG/wPjqdpfg=
+    action: {fileID: 0}
+  - giftName: "\u7231\u7684\u70B8\u5F39"
+    giftId: gx7pmjQfhBaDOG2XkWI2peZ66YFWkCWRjZXpTqb23O/epru+sxWyTV/3Ufs=
+    action: {fileID: 0}
+  - giftName: "\u795E\u79D8\u7A7A\u6295"
+    giftId: pGLo7HKNk1i4djkicmJXf6iWEyd+pfPBjbsHmd3WcX0Ierm2UdnRR7UINvI=
+    action: {fileID: 0}
+  - giftName: "\u9B54\u6CD5\u955C"
+    giftId: fJs8HKQ0xlPRixn8JAUiL2gFRiLD9S6IFCFdvZODSnhyo9YN8q7xUuVVyZI=
+    action: {fileID: 0}
+  commentActions:
+  - keyword: 1
+    action: {fileID: 0}
+  - keyword: 2
+    action: {fileID: 0}
+  likeMilestones:
+  - threshold: 1
+    action: {fileID: 0}
+  - threshold: 10
+    action: {fileID: 0}

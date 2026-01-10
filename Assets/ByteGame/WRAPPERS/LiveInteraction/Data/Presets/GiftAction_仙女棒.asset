@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: "GiftAction_\u4ED9\u5973\u68D2"
+  m_EditorClassIdentifier: Assembly-CSharp:Douyin.YF.Live:GiftActionData
+  levelsToMove: 0
+  persistentEffects:
+  - prefab: {fileID: 0}
+    offset: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+    lifetime: 0
+  oneTimeEffects: []
+  floorBreakEffects: []
+  cutsceneData: {fileID: 0}
+  queueCutscene: 1

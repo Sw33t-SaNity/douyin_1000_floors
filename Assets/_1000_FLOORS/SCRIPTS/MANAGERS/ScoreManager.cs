@@ -5,6 +5,7 @@ namespace ThousandFloors
 {
     /// <summary>
     /// Manages the 1000-floor countdown logic.
+    /// Score changes are handled here, UI visibility is handled by UIManager.
     /// </summary>
     public class ScoreManager : YF_3DGameBase.ScoreManager
     {
@@ -32,9 +33,6 @@ namespace ThousandFloors
             // delta is -1 for progress (moving down), +1 for setback (moving up)
             ChangeScore(delta);
             Debug.Log($"[Score] Delta: {delta} | Remaining: {floorsRemaining}");
-            
-            // Update UI here if you have a UI reference
-            // UIManager.Instance.UpdateFloors(floorsRemaining);
         }
     }
 }

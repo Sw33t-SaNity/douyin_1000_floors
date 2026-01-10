@@ -156,7 +156,14 @@ namespace ThousandFloors
 
                     int naturalMax = centerIndex + visibleAbove;
                     bool shouldBeVisible = kvp.Key <= naturalMax;
-                    vh.SetVisible(shouldBeVisible, false);
+                    
+                    // Check if platform is transitioning from hidden to visible (reappearing)
+                    // If it was hidden and now should be visible, play dissolve effect
+                    bool wasHidden = vh.CurrentState == PlatformVisualHandler.VisualState.Hidden || 
+                                     vh.CurrentState == PlatformVisualHandler.VisualState.Fractured;
+                    bool isReappearing = wasHidden && shouldBeVisible;
+                    
+                    vh.SetVisible(shouldBeVisible, isReappearing);
                 }
             }
         }
@@ -221,6 +228,12 @@ namespace ThousandFloors
         {
             if (_activePlatforms.TryGetValue(index, out GameObject p))
             {
+                // Mark hidden so next reuse can dissolve back in
+                if (p.TryGetComponent<PlatformVisualHandler>(out var vh))
+                {
+                    vh.SetVisible(false, false);
+                }
+
                 p.SetActive(false);
                 _activePlatforms.Remove(index);
                 _inactivePool.Enqueue(p);
@@ -278,7 +291,17 @@ namespace ThousandFloors
                 int playerLevel = GetLevelIndex(player.position.y);
                 int naturalMax = playerLevel + (_forcedTargetIndex > playerLevel ? 0 : visibleAbove);
                 bool shouldBeVisible = seedIndex <= naturalMax;
-                vh.SetVisible(shouldBeVisible, false);
+
+                // Ensure we always come from a hidden state so reappear plays dissolve
+                if (shouldBeVisible)
+                {
+                    vh.SetVisible(false, false);   // set hidden state
+                    vh.SetVisible(true, true);     // dissolve in
+                }
+                else
+                {
+                    vh.SetVisible(false, false);
+                }
             }
 
             // 2.6 Link Scoring Trigger

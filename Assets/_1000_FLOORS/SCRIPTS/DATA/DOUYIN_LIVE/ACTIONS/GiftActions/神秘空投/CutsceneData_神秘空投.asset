@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb24cbec4cd964c42ae5f723a4e0a4a7, type: 3}
+  m_Name: "CutsceneData_\u795E\u79D8\u7A7A\u6295"
+  m_EditorClassIdentifier: 
+  cutsceneId: Airdrop_Cutscene
+  timelineAsset: {fileID: 11400000, guid: cb719d1149265704bb8e08a0afb628cb, type: 2}
+  pauseGameTime: 1
+  autoRestoreInput: 1
+  description: 

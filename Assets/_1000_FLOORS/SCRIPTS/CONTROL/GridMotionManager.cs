@@ -116,18 +116,52 @@ namespace ThousandFloors
         /// <param name="levelDelta">Positive for up, negative for down.</param>
         public void MoveLevels(int levelDelta)
         {
-            if (IsMovingForced) return; // Prevent concurrent movements
+            if (levelDelta == 0)
+            {
+                Debug.LogWarning("[GridMotionManager] MoveLevels called with 0 delta - ignoring.");
+                return;
+            }
+
+            if (IsMovingForced)
+            {
+                Debug.LogWarning($"[GridMotionManager] Already moving! Ignoring request to move {levelDelta} levels.");
+                return; // Prevent concurrent movements
+            }
+
+            // Ensure player is initialized
+            if (player == null || _playerTransform == null)
+            {
+                Debug.LogError("[GridMotionManager] Cannot move - player reference is null! Make sure player is assigned in inspector or has 'Player' tag.");
+                return;
+            }
+
+            // Ensure FloorsManager is available
+            if (FloorsManager.Instance == null)
+            {
+                Debug.LogError("[GridMotionManager] Cannot move - FloorsManager.Instance is null! Make sure FloorsManager is in the scene.");
+                return;
+            }
+
             StartCoroutine(MoveRoutine(levelDelta));
+        }
+
+        /// <summary>
+        /// Checks if GridMotionManager is ready to perform movements.
+        /// </summary>
+        public bool IsReady()
+        {
+            return player != null && _playerTransform != null && FloorsManager.Instance != null;
         }
         #endregion
 
         #region Main Coroutine
         private IEnumerator MoveRoutine(int levelDelta)
         {
-            // Validate player reference
+            // Validate player reference (double-check, should have been caught in MoveLevels)
             if (player == null || _playerTransform == null)
             {
-                Debug.LogError("[GridMotionManager] Cannot move - player reference is null!");
+                Debug.LogError("[GridMotionManager] Cannot move - player reference is null! This should not happen if MoveLevels validation worked.");
+                IsMovingForced = false;
                 yield break;
             }
 

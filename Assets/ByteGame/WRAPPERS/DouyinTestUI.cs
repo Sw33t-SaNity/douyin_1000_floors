@@ -98,7 +98,34 @@ namespace DouyinGame.Testing
 
             if (!_isVisible) return;
 
-            GUILayout.BeginArea(new Rect(10, 50, 350, 650), "Douyin API Tester", GUI.skin.window);
+            GUILayout.BeginArea(new Rect(10, 50, 350, 700), "Douyin API Tester", GUI.skin.window);
+            
+            // Offline Test Mode Toggle
+            if (DouyinNetworkManager.Instance != null)
+            {
+                bool oldOfflineMode = DouyinNetworkManager.Instance.OfflineTestMode;
+                bool newOfflineMode = GUILayout.Toggle(oldOfflineMode, "🔌 Offline Test Mode (No Backend Required)");
+                if (newOfflineMode != oldOfflineMode)
+                {
+                    DouyinNetworkManager.Instance.OfflineTestMode = newOfflineMode;
+                    if (newOfflineMode)
+                    {
+                        AddLog("✓ Offline Test Mode ENABLED - Simulation methods will work without EnvId/ServiceId");
+                    }
+                    else
+                    {
+                        AddLog("→ Offline Test Mode DISABLED - Full SDK initialization required");
+                    }
+                }
+                
+                if (DouyinNetworkManager.Instance.OfflineTestMode)
+                {
+                    GUI.color = Color.yellow;
+                    GUILayout.Label("⚠️ OFFLINE MODE: Backend APIs disabled, simulation enabled", GUI.skin.box);
+                    GUI.color = Color.white;
+                }
+                GUILayout.Space(5);
+            }
             
             if (GUILayout.Button("1. Initialize SDK & Cloud"))
             {
@@ -106,6 +133,12 @@ namespace DouyinGame.Testing
                 {
                     Debug.Log("[TestUI] Initializing SDK...");
                     AddLog("→ Initializing SDK & Cloud...");
+                    
+                    if (DouyinNetworkManager.Instance.OfflineTestMode)
+                    {
+                        AddLog("→ Offline mode: Skipping backend initialization...");
+                    }
+                    
                     _ = DouyinNetworkManager.Instance.InitAsync().ContinueWith(task =>
                     {
                         if (task.IsFaulted)
@@ -115,8 +148,8 @@ namespace DouyinGame.Testing
                         }
                         else
                         {
-                            Debug.Log("[TestUI] SDK Initialized successfully!");
-                            AddLog("✓ SDK Initialized successfully!");
+                            Debug.Log("[TestUI] SDK Initialized (or offline mode enabled)");
+                            AddLog("✓ SDK Ready! (Offline mode: simulation works without backend)");
                         }
                     });
                 }
@@ -128,7 +161,9 @@ namespace DouyinGame.Testing
             }
 
             GUILayout.Space(10);
-            GUILayout.Label("<b>Simulation (Triggers Interaction Logic)</b>");
+            GUILayout.Label("<b>Simulation (Works in Offline Mode!)</b>", GUI.skin.box);
+            GUILayout.Label("<size=10>These buttons test your DouyinLiveInteractionManager without requiring EnvId/ServiceId</size>", GUI.skin.label);
+            GUILayout.Space(5);
             
             GUILayout.BeginHorizontal();
             GUILayout.Label("Gift:", GUILayout.Width(70));
@@ -161,6 +196,16 @@ namespace DouyinGame.Testing
                     Debug.Log($"[TestUI] Simulating gift: {_giftId}");
                     DouyinNetworkManager.Instance.SimulateGift(_giftId, 1);
                     AddLog($"✓ Sent gift: {_giftId}");
+                    
+                    // Check if DouyinLiveInteractionManager is subscribed
+                    if (DouyinLiveInteractionManager.Instance != null)
+                    {
+                        AddLog("→ Checking if DouyinLiveInteractionManager received the gift...");
+                    }
+                    else
+                    {
+                        AddLog("⚠️ DouyinLiveInteractionManager.Instance is null - gift action may not execute!");
+                    }
                 }
                 else
                 {

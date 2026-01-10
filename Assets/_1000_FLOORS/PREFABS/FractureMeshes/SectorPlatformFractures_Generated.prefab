@@ -1890,8 +1890,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cd6f1f120f81214d9aae45b84134d78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Force: 1500
-  Radius: 0
+  Force: 50000
+  Radius: 3
 --- !u!43 &-8396989798247245406
 Mesh:
   m_ObjectHideFlags: 0

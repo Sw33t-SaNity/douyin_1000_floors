@@ -260,8 +260,7 @@ MonoBehaviour:
   fractureComponent: {fileID: 8733800134261966066}
   platformRenderers:
   - {fileID: 2065441669737008185}
-  dissolvePropName: '_AdvancedDissolveCutoutStandardClip '
-  dissolveDuration: 0.8
+  dissolveDuration: 2
 --- !u!114 &8733800134261966066
 MonoBehaviour:
   m_ObjectHideFlags: 0

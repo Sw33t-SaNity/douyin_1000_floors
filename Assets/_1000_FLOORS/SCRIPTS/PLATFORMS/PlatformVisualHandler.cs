@@ -25,13 +25,17 @@ namespace ThousandFloors
         [Header("Dissolve Settings")]
         [Tooltip("If empty, will automatically find all renderers in normalVisual")]
         public Renderer[] platformRenderers;
-        public string dissolvePropName = "_AdvancedDissolveCutoutStandardClip";
         public float dissolveDuration = 0.8f;
         #endregion
 
         #region Internal State
         private VisualState _currentState = VisualState.Normal;
         private List<Material> _materials = new List<Material>();
+
+        /// <summary>
+        /// Returns the current visual state of the platform.
+        /// </summary>
+        public VisualState CurrentState => _currentState;
         #endregion
 
         #region Unity Lifecycle
@@ -43,13 +47,17 @@ namespace ThousandFloors
                 platformRenderers = normalVisual.GetComponentsInChildren<Renderer>(true);
             }
 
-            // Cache materials to avoid GetComponent calls during runtime
+            // Instantiate renderer materials via renderer.materials (Unity creates unique instances)
             _materials.Clear();
             if (platformRenderers != null)
             {
                 foreach (var r in platformRenderers)
                 {
-                    if (r != null) _materials.AddRange(r.materials);
+                    if (r != null)
+                    {
+                        var mats = r.materials; // this property instantiates shared materials
+                        if (mats != null) _materials.AddRange(mats);
+                    }
                 }
             }
         }
@@ -153,6 +161,25 @@ namespace ThousandFloors
 
         #region Core Logic
         /// <summary>
+        /// Ensures materials are instantiated (not shared) so dissolve effects work per-platform.
+        /// </summary>
+        private void EnsureMaterialsInstantiated()
+        {
+            if (platformRenderers == null || platformRenderers.Length == 0) return;
+
+            if (_materials == null) _materials = new List<Material>();
+            if (_materials.Count == 0)
+            {
+                foreach (var r in platformRenderers)
+                {
+                    if (r == null) continue;
+                    var mats = r.materials; // instantiates if needed
+                    if (mats != null) _materials.AddRange(mats);
+                }
+            }
+        }
+
+        /// <summary>
         /// Main toggle for platform visibility. Handles physical colliders and visual transitions.
         /// </summary>
         /// <param name="visible">Target state.</param>
@@ -192,18 +219,17 @@ namespace ThousandFloors
                 mc.sharedMesh = mf.sharedMesh;
             }
 
-            // Enable renderers. 
+            // Ensure materials are instantiated (in case they weren't in Awake)
+            EnsureMaterialsInstantiated();
+
+            // Enable renderers first so materials are accessible
+            foreach (var r in platformRenderers) if (r != null) r.enabled = true;
+
             // If playing effects, set clip to 1 (invisible) first to avoid a 1-frame "pop".
             if (playEffects)
             {
                 SetDissolveClip(1f);
                 _currentState = VisualState.Dissolving;
-            }
-            
-            foreach (var r in platformRenderers) if (r != null) r.enabled = true;
-
-            if (playEffects)
-            {
                 StartCoroutine(DissolveRoutine(1f, 0f)); // Fade In
             }
             else
@@ -265,9 +291,25 @@ namespace ThousandFloors
 
         private void SetDissolveClip(float val)
         {
+            if (_materials == null || _materials.Count == 0)
+            {
+                Debug.LogWarning($"[PlatformVisualHandler] No materials cached for level {levelIndex}. Cannot set dissolve clip.");
+                return;
+            }
+
             foreach (var mat in _materials)
             {
-                AdvancedDissolveProperties.Cutout.Standard.UpdateLocalProperty(mat, AdvancedDissolveProperties.Cutout.Standard.Property.Clip, val);
+                if (mat != null)
+                {
+                    try
+                    {
+                        AdvancedDissolveProperties.Cutout.Standard.UpdateLocalProperty(mat, AdvancedDissolveProperties.Cutout.Standard.Property.Clip, val);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogWarning($"[PlatformVisualHandler] Failed to update dissolve property on material '{mat.name}': {e.Message}");
+                    }
+                }
             }
         }
         #endregion

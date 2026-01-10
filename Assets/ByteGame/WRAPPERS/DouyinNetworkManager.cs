@@ -25,6 +25,10 @@ namespace DouyinGame.Core
         public string EnvId = ""; 
         public string ServiceId = "";
         public bool IsDebug = false;
+        
+        [Header("Testing")]
+        [Tooltip("Enable offline test mode - skips DyCloud initialization and allows simulation without backend")]
+        public bool OfflineTestMode = false;
 
         // --- EVENTS (Using SDK Interfaces) ---
         public event Action<string>? OnRawLog;
@@ -74,44 +78,81 @@ namespace DouyinGame.Core
         public async Task InitAsync()
         {
             if (_isInitialized) return;
+            
+            if (OfflineTestMode)
+            {
+                Debug.Log("[DouyinNetworkManager] Offline Test Mode enabled - skipping SDK initialization");
+                Debug.Log("[DouyinNetworkManager] Simulation methods are available for testing");
+                _isInitialized = true; // Allow simulation methods to work
+                return;
+            }
+            
             try
             {
                 // 1. Core SDK
                 Sdk.Initialize(this.AppId);
 
-                // 2. Cloud API (For your custom backend)
-                _dyCloudApi = Sdk.GetDyCloudApi();
-                await _dyCloudApi.InitializeAsync(new DyCloudInitParams {
-                    EnvId = this.EnvId, 
-                    DefaultServiceId = this.ServiceId, 
-                    IsDebug = this.IsDebug 
-                });
+                // 2. Cloud API (For your custom backend) - Optional for testing
+                try
+                {
+                    _dyCloudApi = Sdk.GetDyCloudApi();
+                    if (!string.IsNullOrEmpty(this.EnvId) && !string.IsNullOrEmpty(this.ServiceId))
+                    {
+                        await _dyCloudApi.InitializeAsync(new DyCloudInitParams {
+                            EnvId = this.EnvId, 
+                            DefaultServiceId = this.ServiceId, 
+                            IsDebug = this.IsDebug 
+                        });
+                        Log("DyCloud API Initialized");
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[DouyinNetworkManager] EnvId or ServiceId not set. DyCloud API will be unavailable, but simulation methods will still work.");
+                    }
+                }
+                catch (Exception cloudEx)
+                {
+                    Debug.LogWarning($"[DouyinNetworkManager] DyCloud initialization failed (this is OK for testing): {cloudEx.Message}");
+                    Debug.LogWarning("[DouyinNetworkManager] Simulation methods will still work without backend.");
+                }
 
-                // 3. Services
-                _roomInfoService = Sdk.GetRoomInfoService();
-                _pushService = Sdk.GetMessagePushService();
-                _ackService = Sdk.GetMessageAckService();
-                _roundApi = Sdk.GetRoundApi(); // Get Round API
+                // 3. Services - Try to initialize push service for live streaming (optional for testing)
+                try
+                {
+                    _roomInfoService = Sdk.GetRoomInfoService();
+                    _pushService = Sdk.GetMessagePushService();
+                    _ackService = Sdk.GetMessageAckService();
+                    _roundApi = Sdk.GetRoundApi();
 
-                // 4. Wait for room info (REQUIRED before starting push tasks)
-                await _roomInfoService.WaitForRoomInfoAsync();
+                    // 4. Wait for room info (REQUIRED before starting push tasks)
+                    await _roomInfoService.WaitForRoomInfoAsync();
 
-                // 5. Events
-                _pushService.OnConnectionStateChanged += OnConnectionStateChanged;
-                _pushService.OnMessage += HandleSdkMessage;
+                    // 5. Events
+                    _pushService.OnConnectionStateChanged += OnConnectionStateChanged;
+                    _pushService.OnMessage += HandleSdkMessage;
 
-                // 6. Start Pushing
-                await _pushService.StartPushTaskAsync(PushMessageTypes.LiveComment);
-                await _pushService.StartPushTaskAsync(PushMessageTypes.LiveGift);
-                await _pushService.StartPushTaskAsync(PushMessageTypes.LiveLike);
-                await _pushService.StartPushTaskAsync(PushMessageTypes.LiveFansClub);
+                    // 6. Start Pushing
+                    await _pushService.StartPushTaskAsync(PushMessageTypes.LiveComment);
+                    await _pushService.StartPushTaskAsync(PushMessageTypes.LiveGift);
+                    await _pushService.StartPushTaskAsync(PushMessageTypes.LiveLike);
+                    await _pushService.StartPushTaskAsync(PushMessageTypes.LiveFansClub);
 
-                Log("SDK Initialized & Listening");
+                    Log("SDK Initialized & Listening");
+                }
+                catch (Exception pushEx)
+                {
+                    Debug.LogWarning($"[DouyinNetworkManager] Push service initialization failed (this is OK for testing): {pushEx.Message}");
+                    Debug.LogWarning("[DouyinNetworkManager] Simulation methods will still work without live streaming.");
+                }
+
                 _isInitialized = true;
             }
             catch (Exception e)
             {
                 Debug.LogError($"[DouyinNetworkManager] Init Failed: {e}");
+                // Even if initialization fails, allow simulation methods to work for testing
+                Debug.LogWarning("[DouyinNetworkManager] Enabling test mode - simulation methods will still work.");
+                _isInitialized = true;
             }
         }
 
@@ -143,9 +184,16 @@ namespace DouyinGame.Core
 
         public async Task StartGameAsync(Action<string?> onGameStarted)
         {
-            if (!_isInitialized || _roundApi == null || _dyCloudApi == null)
+            if (!_isInitialized)
             {
                 Debug.LogError("[DouyinNetworkManager] Services not initialized. Call InitAsync() first.");
+                onGameStarted?.Invoke(null);
+                return;
+            }
+            
+            if (OfflineTestMode || _roundApi == null || _dyCloudApi == null)
+            {
+                Debug.LogWarning("[DouyinNetworkManager] StartGame requires backend services (not available in offline mode).");
                 onGameStarted?.Invoke(null);
                 return;
             }
@@ -180,9 +228,16 @@ namespace DouyinGame.Core
 
         public async Task GetNoticeAsync(Action<string?> onNoticeReceived)
         {
-            if (!_isInitialized || _dyCloudApi == null)
+            if (!_isInitialized)
             {
-                Debug.LogError("[DouyinNetworkManager] DyCloudApi not initialized. Call InitAsync() first.");
+                Debug.LogError("[DouyinNetworkManager] Services not initialized. Call InitAsync() first.");
+                onNoticeReceived?.Invoke(null);
+                return;
+            }
+            
+            if (OfflineTestMode || _dyCloudApi == null)
+            {
+                Debug.LogWarning("[DouyinNetworkManager] GetNotice requires backend services (not available in offline mode).");
                 onNoticeReceived?.Invoke(null);
                 return;
             }
@@ -202,9 +257,15 @@ namespace DouyinGame.Core
 
         public async Task GameOverAsync(OverMessage overData)
         {
-            if (!_isInitialized || _roundApi == null || _dyCloudApi == null)
+            if (!_isInitialized)
             {
                 Debug.LogError("[DouyinNetworkManager] Services not initialized. Call InitAsync() first.");
+                return;
+            }
+            
+            if (OfflineTestMode || _roundApi == null || _dyCloudApi == null)
+            {
+                Debug.LogWarning("[DouyinNetworkManager] GameOver requires backend services (not available in offline mode).");
                 return;
             }
 
@@ -251,18 +312,59 @@ namespace DouyinGame.Core
 
         // --- SIMULATION (Mocks) ---
         // These classes are needed because you cannot instantiate Interfaces directly.
+        // These work regardless of SDK initialization status - perfect for offline testing.
 
-        public void SimulateGift(string giftId, int count) => 
-            OnGiftReceived?.Invoke(new MockGiftMessage(giftId, count));
+        public void SimulateGift(string giftId, int count)
+        {
+            if (OnGiftReceived != null)
+            {
+                Debug.Log($"[DouyinNetworkManager] Simulating gift: {giftId} x{count} (Offline Mode: {OfflineTestMode})");
+                OnGiftReceived.Invoke(new MockGiftMessage(giftId, count));
+            }
+            else
+            {
+                Debug.LogWarning("[DouyinNetworkManager] SimulateGift called but no subscribers to OnGiftReceived event.");
+            }
+        }
 
-        public void SimulateComment(string content) => 
-            OnCommentReceived?.Invoke(new MockCommentMessage(content));
+        public void SimulateComment(string content)
+        {
+            if (OnCommentReceived != null)
+            {
+                Debug.Log($"[DouyinNetworkManager] Simulating comment: {content} (Offline Mode: {OfflineTestMode})");
+                OnCommentReceived.Invoke(new MockCommentMessage(content));
+            }
+            else
+            {
+                Debug.LogWarning("[DouyinNetworkManager] SimulateComment called but no subscribers to OnCommentReceived event.");
+            }
+        }
 
-        public void SimulateLike(int count) => 
-            OnLikeReceived?.Invoke(new MockLikeMessage(count));
+        public void SimulateLike(int count)
+        {
+            if (OnLikeReceived != null)
+            {
+                Debug.Log($"[DouyinNetworkManager] Simulating like: {count} (Offline Mode: {OfflineTestMode})");
+                OnLikeReceived.Invoke(new MockLikeMessage(count));
+            }
+            else
+            {
+                Debug.LogWarning("[DouyinNetworkManager] SimulateLike called but no subscribers to OnLikeReceived event.");
+            }
+        }
 
-        public void SimulateFansclub(int level) => 
-            OnFansclubJoined?.Invoke(new MockFansClubMessage(level));
+        public void SimulateFansclub(int level)
+        {
+            if (OnFansclubJoined != null)
+            {
+                Debug.Log($"[DouyinNetworkManager] Simulating fansclub: level {level} (Offline Mode: {OfflineTestMode})");
+                OnFansclubJoined.Invoke(new MockFansClubMessage(level));
+            }
+            else
+            {
+                Debug.LogWarning("[DouyinNetworkManager] SimulateFansclub called but no subscribers to OnFansclubJoined event.");
+            }
+        }
 
         // --- MOCK CLASSES ---
         // Simple implementations of SDK interfaces for testing.

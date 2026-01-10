@@ -26,13 +26,13 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _AD_CUTOUT_STANDARD_SOURCE_CUSTOM_MAP
+  - _AD_CUTOUT_STANDARD_SOURCE_MAPS_MAPPING_TYPE_TRIPLANAR
   - _AD_STATE_ENABLED
   - _EMISSION
   - _RECEIVE_SHADOWS_OFF
   m_InvalidKeywords:
   - _AD_CUTOUT_GEOMETRIC_COUNT_ONE
   - _AD_CUTOUT_GEOMETRIC_TYPE_NONE
-  - _AD_CUTOUT_STANDARD_SOURCE_MAPS_MAPPING_TYPE_DEFAULT
   - _AD_EDGE_ADDITIONAL_COLOR_NONE
   - _AD_EDGE_BASE_SOURCE_NONE
   - _AD_EDGE_UV_DISTORTION_SOURCE_DEFAULT
@@ -169,7 +169,7 @@ Material:
     - _AdvancedDissolveKeywordCutoutGeometricCount: 0
     - _AdvancedDissolveKeywordCutoutGeometricType: 0
     - _AdvancedDissolveKeywordCutoutStandardSource: 2
-    - _AdvancedDissolveKeywordCutoutStandardSourceMapsMappingType: 0
+    - _AdvancedDissolveKeywordCutoutStandardSourceMapsMappingType: 1
     - _AdvancedDissolveKeywordEdgeAdditionalColorSource: 0
     - _AdvancedDissolveKeywordEdgeBaseSource: 0
     - _AdvancedDissolveKeywordEdgeUVDistortionSource: 0

@@ -5,7 +5,7 @@ using Douyin.YF.Live;
 
 namespace Douyin.YF.Live
 {
-    [CreateAssetMenu(fileName = "LiveInteractionConfig", menuName = "Live/Interaction Config")]
+    [CreateAssetMenu(fileName = "LiveInteractionConfig", menuName = "Douyin Live/Config/Interaction Config")]
     public class LiveInteractionConfig : ScriptableObject
     {
         [Header("Gift Mappings")]
