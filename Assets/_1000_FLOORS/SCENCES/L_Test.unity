@@ -1146,7 +1146,8 @@ MonoBehaviour:
   player: {fileID: 2134674017}
   platformPrefab: {fileID: 3854614232748769480, guid: 4332a1e9e0be1b64c9e4e65c7c97cc61, type: 3}
   scoreEffectPrefab: {fileID: 5448320773322436899, guid: 8fb60ac8c7db2074fa08f260807868f6, type: 3}
-  breakEffectPrefab: {fileID: 6891291519092082853, guid: fee71138b24d7674690e26cf31973cf3, type: 3}
+  breakEffectPrefab: {fileID: 217993222680584950, guid: 796ac66cf9e52e54eb99621aca2f8167, type: 3}
+  reappearEffectPrefab: {fileID: 1030975243857146575, guid: 76b5454a2e2c096478221683227d9498, type: 3}
   verticalDistance: 8.5
   visibleAbove: 0
   visibleBelow: 10
@@ -1240,8 +1241,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1182537761}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.5298903, y: 0.476185, z: 0.09780545, w: 0.6949088}
+  m_LocalPosition: {x: 1000, y: 3.344301, z: 12.18689}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3578,7 +3579,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19f6dff25f6e0754997dd0156cfc9109, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gridMotionManager: {fileID: 1676526194}
   _pauseDuringCutscenes: 1
   _platformBreakCameraShake: {fileID: 0}
 --- !u!1 &1685956760

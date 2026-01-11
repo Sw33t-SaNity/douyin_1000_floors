@@ -12,9 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: "GiftAction_\u795E\u79D8\u7A7A\u6295"
   m_EditorClassIdentifier: Assembly-CSharp:Douyin.YF.Live:GiftActionData
-  levelsToMove: 0
-  persistentEffects: []
+  levelsToMove: -50
+  persistentEffects:
+  - prefab: {fileID: 2750607039123695409, guid: 52095c3a02895e7448c14690b7c1b548, type: 3}
+    offset: {x: 0, y: 3, z: 0}
+    offsetRandom: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+    rotationRandom: {x: 0, y: 0, z: 0}
+    lifetime: -1
   oneTimeEffects: []
-  floorBreakEffects: []
-  cutsceneData: {fileID: 0}
+  floorBreakEffects:
+  - prefab: {fileID: 3951279658861274841, guid: edd4a10a2036d9f41933a25d5265103d, type: 3}
+    offset: {x: 0, y: -5, z: 0}
+    offsetRandom: {x: 0, y: 0, z: 0}
+    rotation: {x: 0, y: 0, z: 0}
+    rotationRandom: {x: 0, y: 180, z: 0}
+    lifetime: -1
+  cutsceneData: {fileID: 11400000, guid: c6247f019e1d8284f9c99a440b06102b, type: 2}
   queueCutscene: 1

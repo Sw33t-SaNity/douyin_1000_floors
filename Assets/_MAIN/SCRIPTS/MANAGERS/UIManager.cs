@@ -39,6 +39,7 @@ namespace YF_3DGameBase
         private int _accumulatedDelta;
         private bool _isInCutscene = false;
         private bool[] _wasActiveBeforeCutscene;
+        private bool _wasScoreTextActive;
 
         private void Awake()
         {
@@ -141,6 +142,13 @@ namespace YF_3DGameBase
                 }
             }
             
+            // Hide ScoreText if it exists
+            if (_scoreText != null)
+            {
+                _wasScoreTextActive = _scoreText.gameObject.activeSelf;
+                _scoreText.gameObject.SetActive(false);
+            }
+            
             Debug.Log($"[UIManager] Cutscene '{cutsceneId}' started - UI hidden, feedbacks paused");
         }
 
@@ -158,6 +166,12 @@ namespace YF_3DGameBase
                         _hideOnCutscene[i].SetActive(true);
                     }
                 }
+            }
+            
+            // Restore ScoreText if it was active before cutscene
+            if (_scoreText != null && _wasScoreTextActive)
+            {
+                _scoreText.gameObject.SetActive(true);
             }
             
             // Reset combo state after cutscene

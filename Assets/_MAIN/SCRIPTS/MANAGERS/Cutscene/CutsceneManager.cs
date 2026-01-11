@@ -217,6 +217,13 @@ namespace YF_3DGameBase
                 DisableGameCameraController();
             }
 
+            // Ensure CinemachineBrain is enabled for the cutscene
+            // (It might have been disabled by FinishCutscene if we have a custom camera controller)
+            if (_cinemachineBrain != null)
+            {
+                _cinemachineBrain.enabled = true;
+            }
+
             // Track Cinemachine virtual cameras bound to this Timeline
             TrackCutsceneVirtualCameras();
 

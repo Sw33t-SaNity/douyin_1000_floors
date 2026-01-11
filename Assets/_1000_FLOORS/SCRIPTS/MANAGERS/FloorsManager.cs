@@ -12,6 +12,7 @@ namespace ThousandFloors
         public GameObject platformPrefab;
         public GameObject scoreEffectPrefab;
         public GameObject breakEffectPrefab;
+        public GameObject reappearEffectPrefab;
 
         [Header("Grid Settings")]
         [Tooltip("How far apart platforms are vertically.")]
@@ -34,8 +35,10 @@ namespace ThousandFloors
         private Queue<GameObject> _inactivePool = new Queue<GameObject>();
         private List<ParticleSystem> _effectPool = new List<ParticleSystem>();
         private List<ParticleSystem> _breakEffectPool = new List<ParticleSystem>();
+        private List<ParticleSystem> _reappearEffectPool = new List<ParticleSystem>();
         private int _lastPlayerIndex = int.MaxValue;
         private int _forcedTargetIndex = int.MinValue;
+        private bool _hasGeneratedInitialPlatforms = false;
 
         // ========================================================================
         // RUNTIME LOGIC
@@ -90,6 +93,7 @@ namespace ThousandFloors
             {
                 CreateNewScoreEffect();
                 CreateNewBreakEffect();
+                CreateNewReappearEffect();
             }
         }
 
@@ -159,12 +163,19 @@ namespace ThousandFloors
                     
                     // Check if platform is transitioning from hidden to visible (reappearing)
                     // If it was hidden and now should be visible, play dissolve effect
-                    bool wasHidden = vh.CurrentState == PlatformVisualHandler.VisualState.Hidden || 
-                                     vh.CurrentState == PlatformVisualHandler.VisualState.Fractured;
+                    bool wasHidden = vh.CurrentState == PlatformVisualHandler.VisualState.Hidden ||
+                                     vh.CurrentState == PlatformVisualHandler.VisualState.Fractured ||
+                                     vh.CurrentState == PlatformVisualHandler.VisualState.Dissolving;
                     bool isReappearing = wasHidden && shouldBeVisible;
                     
                     vh.SetVisible(shouldBeVisible, isReappearing);
                 }
+            }
+
+            // Mark that initial platforms have been generated
+            if (!_hasGeneratedInitialPlatforms)
+            {
+                _hasGeneratedInitialPlatforms = true;
             }
         }
 
@@ -296,7 +307,8 @@ namespace ThousandFloors
                 if (shouldBeVisible)
                 {
                     vh.SetVisible(false, false);   // set hidden state
-                    vh.SetVisible(true, true);     // dissolve in
+                    bool playEffects = _hasGeneratedInitialPlatforms;
+                    vh.SetVisible(true, playEffects);     // dissolve in (with effect only after initial generation)
                 }
                 else
                 {
@@ -340,6 +352,20 @@ namespace ThousandFloors
             if (ps != null)
             {
                 _breakEffectPool.Add(ps);
+            }
+            return ps;
+        }
+
+        private ParticleSystem CreateNewReappearEffect()
+        {
+            if (reappearEffectPrefab == null) return null;
+            
+            GameObject go = Instantiate(reappearEffectPrefab, transform);
+            go.SetActive(true);
+            ParticleSystem ps = go.GetComponentInChildren<ParticleSystem>();
+            if (ps != null)
+            {
+                _reappearEffectPool.Add(ps);
             }
             return ps;
         }
@@ -388,6 +414,29 @@ namespace ThousandFloors
             }
 
             if (effect == null) effect = CreateNewBreakEffect();
+            if (effect == null) return;
+
+            effect.transform.position = position;
+            effect.Play(true);
+        }
+
+        public void PlayReappearEffect(Vector3 position)
+        {
+            if (reappearEffectPrefab == null) return;
+
+            ParticleSystem effect = null;
+            for (int i = 0; i < _reappearEffectPool.Count; i++)
+            {
+                if (_reappearEffectPool[i] == null) continue;
+
+                if (!_reappearEffectPool[i].isPlaying)
+                {
+                    effect = _reappearEffectPool[i];
+                    break;
+                }
+            }
+
+            if (effect == null) effect = CreateNewReappearEffect();
             if (effect == null) return;
 
             effect.transform.position = position;

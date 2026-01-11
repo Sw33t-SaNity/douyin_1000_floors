@@ -188,6 +188,9 @@ namespace ThousandFloors
         {
             VisualState targetState = visible ? VisualState.Normal : VisualState.Hidden;
             
+            // Optimization: If already dissolving to the target state, let it finish
+            if (visible && _currentState == VisualState.Dissolving && playEffects) return;
+
             if (!playEffects && _currentState == targetState) return;
 
             _currentState = targetState;
@@ -228,6 +231,11 @@ namespace ThousandFloors
             // If playing effects, set clip to 1 (invisible) first to avoid a 1-frame "pop".
             if (playEffects)
             {
+                if (FloorsManager.Instance != null)
+                {
+                    FloorsManager.Instance.PlayReappearEffect(transform.position);
+                }
+
                 SetDissolveClip(1f);
                 _currentState = VisualState.Dissolving;
                 StartCoroutine(DissolveRoutine(1f, 0f)); // Fade In
@@ -265,6 +273,7 @@ namespace ThousandFloors
                 {
                     // Fallback if no fracture component: just hide
                     foreach (var r in platformRenderers) if (r != null) r.enabled = false;
+                    _currentState = VisualState.Hidden;
                 }
             }
             else
